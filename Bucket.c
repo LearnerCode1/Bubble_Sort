@@ -1,81 +1,76 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<time.h>
 
-void InsertionSort(float *arr, int n)
-{
-    for(int i = 1; i < n ; i++)
-    {
-        float key = arr[i];
+void InsertionSort(float arr[], int n){
+    for(int i=1; i<n; i++){
+        float key = arr[i];  
         int j = i-1;
-        {
-            while(j >= 0 && key < arr[j])
-            {
-                arr[j+1] = arr[j];
-                j--;
-            }
-            arr[j+1] = key;
+        while(j>=0 && arr[j] > key){
+            arr[j+1] = arr[j];
+            j--;
+        }
+        arr[j+1] = key;
+    }
+}
+
+void BucketSort(float arr[], int n){
+    float newArr[n][n];
+    int bucketSizes[n]; 
+
+    for(int i=0; i<n; i++){
+        bucketSizes[i] = 0;
+    }
+
+    for(int i=0; i<n; i++){
+        int bucketIndex = arr[i] * n; 
+        newArr[bucketIndex][bucketSizes[bucketIndex]] = arr[i];
+        bucketSizes[bucketIndex]++;
+    }
+
+    for(int i=0; i<n; i++){
+        if(bucketSizes[i] > 0){
+            InsertionSort(newArr[i], bucketSizes[i]);
+        }
+    }
+
+    int index = 0;
+    for(int i=0; i<n; i++){
+        for(int j=0; j<bucketSizes[i]; j++){
+            arr[index++] = newArr[i][j];  
         }
     }
 }
 
-void BucketSort(float *arr, int n)
-{
-   float **Buckets = (float **)malloc(n * sizeof(float *));
-   int *bucketIndex = (int *)malloc(n * sizeof(int));
+int main() {
+    srand(time(NULL));  
+    clock_t start, end;
+    double cpu_time_used;
 
-   for (int i = 0; i < n; i++)
-   {
-      Buckets[i] = (float *)malloc(n * sizeof(float));
-      bucketIndex[i] = 0;
-   }
-    
-   for(int i = 0; i < n; i++)
-   {
-    int x = arr[i]*n;
-    Buckets[x%n][bucketIndex[x]++] = arr[i];
-   }
-
-   for(int i = 0; i < n; i++)
-   {
-        InsertionSort(Buckets[i],bucketIndex[i]);
-   }
-
-    int k=0;
-
-   for(int i = 0 ; i < n ; i++)
-   {
-    for(int j = 0 ; j < bucketIndex[i] ; j++)
-    {
-        arr[k++] = Buckets[i][j];
-    }
-   }
-
-   for(int i = 0 ; i  < n ; i++)
-   {
-    free(Buckets[i]);
-   }
-    free(Buckets);
-    free(bucketIndex);
-   
-}
-void main()
-{
     int n;
-    printf("Enter the size of the Array : ");
+    printf("Enter number of elements: ");
     scanf("%d", &n);
-    float *a = (float *)malloc(n*sizeof(float));
-    for(int i = 0 ; i < n ; i++)
-    {
-        printf("Enter element : ");
-        scanf("%f", &a[i]);
+
+    float arr[n];
+    printf("Enter %d float numbers:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%f", &arr[i]);  
     }
 
-    BucketSort(a,n);
-    printf("Sorted Array : ");
-    for(int i = 0 ; i < n ; i++)
-    {
-        printf("%f ", a[i]);
-    }
-    free(a);
+    start = clock(); 
 
+    BucketSort(arr, n);  
+
+    end = clock(); 
+
+    printf("Sorted Array:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%f\t", arr[i]);
+    }
+    printf("\n");
+
+    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %lf seconds\n", cpu_time_used);
+
+    return 0;
 }
